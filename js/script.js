@@ -21,37 +21,65 @@ document.addEventListener('DOMContentLoaded', () => {
     const fadeElements = document.querySelectorAll('.fade-up');
     fadeElements.forEach(el => observer.observe(el));
 
-    // CTA Button Link Management
-    // 正式な相談URLが決まり次第、空文字からURLに変更してください。
-    // 例: const CONSULT_URL = 'https://example.com/contact';
-    const CONSULT_URL = ''; 
+    // Application State Management
+    // 受付状態を一箇所で管理します。
+    // status: 'preparing' (準備中) | 'open' (受付中) | 'closed' (受付終了)
+    const APPLICATION_URL = '';
+    const APPLICATION_STATUS = 'preparing'; 
     
-    const ctaBtns = document.querySelectorAll('.js-cta-btn');
-    const ctaNotes = document.querySelectorAll('.js-cta-note');
+    const appBtns = document.querySelectorAll('.js-app-btn');
+    const appNotes = document.querySelectorAll('.js-app-note');
 
-    if (CONSULT_URL && CONSULT_URL.trim() !== '') {
-        // URLが設定されている場合
-        ctaBtns.forEach(btn => {
-            btn.href = CONSULT_URL;
-            btn.target = '_blank';
-            btn.rel = 'noopener noreferrer';
-            btn.textContent = '講師養成について相談する';
-            btn.style.display = 'inline-flex';
-        });
-        ctaNotes.forEach(note => {
-            note.style.display = 'none';
-        });
-    } else {
-        // URLが未設定（準備中）の場合
-        // HTML側で初期状態として適切な文言・リンクを設定しているため、
-        // JSでは表示の制御とデフォルト動作の無効化を行う。
-        ctaBtns.forEach(btn => {
-            const loc = btn.getAttribute('data-loc');
-            if (loc === 'summary') {
-                btn.style.display = 'none';
+    appBtns.forEach(btn => {
+        const loc = btn.getAttribute('data-loc');
+        
+        if (APPLICATION_STATUS === 'open') {
+            // 受付中
+            if (APPLICATION_URL) {
+                btn.href = APPLICATION_URL;
+                btn.target = '_blank';
+                btn.rel = 'noopener noreferrer';
             }
-        });
-    }
+            btn.textContent = '講師養成に申し込む';
+            btn.style.display = 'inline-flex';
+            btn.classList.remove('is-disabled');
+            
+        } else if (APPLICATION_STATUS === 'closed') {
+            // 受付終了
+            btn.href = 'javascript:void(0)';
+            btn.removeAttribute('target');
+            btn.removeAttribute('rel');
+            btn.textContent = '募集は終了しました';
+            btn.style.display = 'inline-flex';
+            btn.classList.add('is-disabled');
+            
+        } else {
+            // 準備中 (preparing)
+            btn.href = '#summary';
+            btn.removeAttribute('target');
+            btn.removeAttribute('rel');
+            if (loc === 'hero') {
+                btn.textContent = '養成内容・受講料を見る';
+                btn.style.display = 'inline-flex';
+            } else if (loc === 'summary') {
+                btn.style.display = 'none';
+            } else if (loc === 'bottom') {
+                btn.textContent = '募集概要を確認する';
+                btn.style.display = 'inline-flex';
+            }
+        }
+    });
+
+    appNotes.forEach(note => {
+        if (APPLICATION_STATUS === 'open') {
+            note.style.display = 'none';
+        } else if (APPLICATION_STATUS === 'closed') {
+            note.style.display = 'none';
+        } else {
+            note.textContent = '※申込フォームは準備中です';
+            note.style.display = 'block';
+        }
+    });
 
     // Smooth Scroll for internal links
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
