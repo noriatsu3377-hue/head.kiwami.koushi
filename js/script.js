@@ -36,19 +36,20 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.target = '_blank';
             btn.rel = 'noopener noreferrer';
             btn.textContent = '講師養成について相談する';
+            btn.style.display = 'inline-flex';
         });
         ctaNotes.forEach(note => {
             note.style.display = 'none';
         });
     } else {
         // URLが未設定（準備中）の場合
+        // HTML側で初期状態として適切な文言・リンクを設定しているため、
+        // JSでは表示の制御とデフォルト動作の無効化を行う。
         ctaBtns.forEach(btn => {
-            btn.href = '#summary'; // 募集概要セクションへアンカーリンク
-            btn.textContent = '養成内容・受講料を見る';
-        });
-        ctaNotes.forEach(note => {
-            note.textContent = '※相談受付は準備中です';
-            note.style.display = 'block';
+            const loc = btn.getAttribute('data-loc');
+            if (loc === 'summary') {
+                btn.style.display = 'none';
+            }
         });
     }
 
