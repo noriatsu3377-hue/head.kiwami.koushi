@@ -1,4 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // JSが有効であることを示すクラスをbodyに付与
+    document.body.classList.remove('js-disabled');
+
     // Scroll Animation (Fade Up)
     const observerOptions = {
         root: null,
@@ -19,18 +22,33 @@ document.addEventListener('DOMContentLoaded', () => {
     fadeElements.forEach(el => observer.observe(el));
 
     // CTA Button Link Management
-    // 相談導線のリンクを一元管理（現在は準備中のためダミー）
-    const CONSULT_URL = 'javascript:void(0);'; // 正式なURLが決まり次第ここを変更
+    // 正式な相談URLが決まり次第、空文字からURLに変更してください。
+    // 例: const CONSULT_URL = 'https://example.com/contact';
+    const CONSULT_URL = ''; 
     
-    const contactBtn = document.getElementById('contact-btn');
-    if(contactBtn && CONSULT_URL !== 'javascript:void(0);') {
-        contactBtn.href = CONSULT_URL;
-        contactBtn.target = '_blank';
-        contactBtn.rel = 'noopener noreferrer';
-    } else if (contactBtn) {
-        contactBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            alert('現在、窓口の準備中です。詳細が決定次第ご案内いたします。');
+    const ctaBtns = document.querySelectorAll('.js-cta-btn');
+    const ctaNotes = document.querySelectorAll('.js-cta-note');
+
+    if (CONSULT_URL && CONSULT_URL.trim() !== '') {
+        // URLが設定されている場合
+        ctaBtns.forEach(btn => {
+            btn.href = CONSULT_URL;
+            btn.target = '_blank';
+            btn.rel = 'noopener noreferrer';
+            btn.textContent = '講師養成について相談する';
+        });
+        ctaNotes.forEach(note => {
+            note.style.display = 'none';
+        });
+    } else {
+        // URLが未設定（準備中）の場合
+        ctaBtns.forEach(btn => {
+            btn.href = '#summary'; // 募集概要セクションへアンカーリンク
+            btn.textContent = '養成内容・受講料を見る';
+        });
+        ctaNotes.forEach(note => {
+            note.textContent = '※相談受付は準備中です';
+            note.style.display = 'block';
         });
     }
 
@@ -38,13 +56,16 @@ document.addEventListener('DOMContentLoaded', () => {
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function (e) {
             const href = this.getAttribute('href');
-            if(href !== '#') {
-                e.preventDefault();
+            if (href !== '#' && href !== '') {
                 const target = document.querySelector(href);
                 if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth'
-                    });
+                    // 同じページ内リンクならスムーズスクロール
+                    if (location.pathname.replace(/^\//, '') == this.pathname.replace(/^\//, '') && location.hostname == this.hostname) {
+                        e.preventDefault();
+                        target.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
                 }
             }
         });
